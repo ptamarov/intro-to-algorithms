@@ -41,6 +41,23 @@ insertion is `O(1)` amortized, since we have just argued that `n` insertions tak
 
 Give two strings `s` and `t`, determine if `s` occurs as a substring of `t`. In general, `s` is small, and `t` is __huge__: 
 for example, `s` can be a keyword and `t` could be the inbox of an email address from the past 10 years. The naive approach
-is `O(M(N-M))`. where `M = len(s)` and `N = len(t)`. We will show that it can be made `O(M+N)`.
+is `O(M(N-M))`. where `M = len(s)` and `N = len(t)`. We will show that it can be made `O(M+N)`, using a _rolling hash_ approach.
 
-[Complete.]
+The idea is to look at a rolling window inside of `t`, and at each time check if it is equal to `s`. Thus, compute the hash
+value of `s` _once_, call it `rs`. 
+
+We need a new abstract data structre, which will allow us to quickly (i.e. in `O(1)`) compute the hash value of `t[i:i+k]`
+if we know the hash of `t[i-1:i+k-1]`. Since these two overlap in `len(s)-1` values, we want to have an `ADT` that
+stores a string `value` and a hash value `hash`, and can update these two fields when doing the following operations: 
+
+1. `Append(s rune)`: append a new character at the end of the string.
+2. `Skip()`: remove the first character of the string.
+3. `Pop()`: remove the last character of the string.
+
+All these operations must run in constant time. Once we have this ADT, we can implement the _Karp--Rabin algorithm_ to
+do string matching in linear time. Simply run the sliding window algorithm but update the hash of `t[i:i+k]` at each step 
+in constant time. If there is a match, double check if strings are actually equal.
+
+
+_Miscellaneous notes_.
+- `fmt.Sprintf("%03d", int(char))` pad with zeroes to get a 3 digit number.
